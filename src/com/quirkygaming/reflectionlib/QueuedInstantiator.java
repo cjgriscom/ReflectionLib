@@ -3,7 +3,8 @@ package com.quirkygaming.reflectionlib;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.quirkygaming.genericslib.Pair;
+import com.quirkygaming.genericslib.Groups;
+import com.quirkygaming.genericslib.Groups.Pair;
 
 /**
  * This class is intended for applications where multiple libraries are used in different
@@ -29,7 +30,7 @@ public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> 
 					ConstructorDelegate<Superclass> delegate, 
 					String... conditionClassNames) {
 		
-		queue.add(Pair.pair(delegate,conditionClassNames));
+		queue.add(Groups.group(delegate,conditionClassNames));
 		return this;
 	}
 	
