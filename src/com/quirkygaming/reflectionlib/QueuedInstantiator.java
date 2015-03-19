@@ -47,10 +47,10 @@ public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> 
 		while (attempt == null && !queue.isEmpty()){
 			Pair<ConstructorDelegate<Superclass>, String[]> info = queue.remove();
 			try {
-				for (String cName : info.getSecond()) {
+				for (String cName : info.get1()) {
 					Class.forName(cName, false, classLoader);
 				}
-				attempt = info.getFirst().construct();
+				attempt = info.get0().construct();
 			} catch (ClassNotFoundException e) {}
 			
 		}
