@@ -1,10 +1,8 @@
 package com.quirkygaming.reflectionlib;
 
-import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.quirkygaming.genericslib.Null;
 import com.quirkygaming.genericslib.Pair;
 
 /**
@@ -21,15 +19,6 @@ public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> 
 	
 	private ClassLoader classLoader = QueuedInstantiator.class.getClassLoader();
 	private Queue<Pair<ConstructorDelegate<Superclass>, String[]>> queue = new LinkedList<Pair<ConstructorDelegate<Superclass>, String[]>>();
-	private PrintStream messageStream;
-	
-	public QueuedInstantiator() {
-		this(System.out);
-	}
-	
-	public QueuedInstantiator(PrintStream logStream) {
-		this.messageStream = logStream;
-	}
 	
 	public QueuedInstantiator<Superclass> setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
@@ -53,10 +42,6 @@ public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> 
 	}
 	
 	public Superclass instantiate() {
-		return instantiate(Null.<String>get());
-	}
-	
-	public Superclass instantiate(String noClassFoundMessage) {
 		Superclass attempt = null;
 		while (attempt == null && !queue.isEmpty()){
 			Pair<ConstructorDelegate<Superclass>, String[]> info = queue.remove();
@@ -68,16 +53,7 @@ public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> 
 			} catch (ClassNotFoundException e) {}
 			
 		}
-		if (attempt == null) {
-			log(noClassFoundMessage);
-		}
 		
 		return attempt;
-	}
-	
-	private void log(String message) {
-		if (message != null) {
-			messageStream.println(message);
-		}
 	}
 }
