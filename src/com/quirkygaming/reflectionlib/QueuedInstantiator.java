@@ -2,6 +2,10 @@ package com.quirkygaming.reflectionlib;
 
 import java.io.PrintStream;
 import java.util.LinkedList;
+import java.util.Queue;
+
+import com.quirkygaming.genericslib.Null;
+import com.quirkygaming.genericslib.Pair;
 
 /**
  * This class is intended for applications where multiple libraries are used in different
@@ -13,16 +17,14 @@ import java.util.LinkedList;
  *
  * @param <Superclass> An interface or superclass that generically represents classes that might be loaded.
  */
-public class QueuedInstantiator<Superclass> {
+public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> {
 	
 	private ClassLoader classLoader = QueuedInstantiator.class.getClassLoader();
-	private LinkedList<ConstructorDelegate<Superclass>> queue = new LinkedList<ConstructorDelegate<Superclass>>();
+	private Queue<Pair<ConstructorDelegate<Superclass>, String[]>> queue = new LinkedList<Pair<ConstructorDelegate<Superclass>, String[]>>();
 	private PrintStream messageStream;
 	
-	public QueuedInstantiator() {this(true);}
-	
-	public QueuedInstantiator(boolean log) {
-		this(log ? System.out : null);
+	public QueuedInstantiator() {
+		this(System.out);
 	}
 	
 	public QueuedInstantiator(PrintStream logStream) {
@@ -34,42 +36,24 @@ public class QueuedInstantiator<Superclass> {
 		return this;
 	}
 	
-	public QueuedInstantiator<Superclass> queueClass(
-			String conditionClassName, 
-			ConstructorDelegate<Superclass> delegate) {
-		
-		return queueClass(conditionClassName,
-				conditionClassName + " exists!",
-				conditionClassName + " not found.",
-				delegate);
-	}
-	
-	public QueuedInstantiator<Superclass> queueClass(
+	public QueuedInstantiator<Superclass> tryClass(
 					String conditionClassName, 
-					String successMessage, 
-					String failureMessage, 
 					ConstructorDelegate<Superclass> delegate) {
 		
-		return queueClass(new String[]{conditionClassName}, 
-				successMessage, failureMessage, delegate);
+		return tryClass(new String[]{conditionClassName}, 
+				 delegate);
 	}
 	
-	public QueuedInstantiator<Superclass> queueClass(
-			String[] conditionClassNames, 
-			String successMessage, 
-			String failureMessage, 
+	public QueuedInstantiator<Superclass> tryClass(
+			String[] conditionClassNames,
 			ConstructorDelegate<Superclass> delegate) {
-
-					delegate.classNames = conditionClassNames;
-					delegate.successMessage = successMessage;
-					delegate.failureMessage = failureMessage;
-					queue.addFirst(delegate);
-					return this;
+		
+		queue.add(Pair.pair(delegate,conditionClassNames));
+		return this;
 	}
 	
 	public <E extends Exception> Superclass instantiate(E failureException) throws E {
-		String n = null;
-		Superclass attempt = instantiate(n);
+		Superclass attempt = instantiate();
 		if (attempt == null) {
 			throw failureException;
 		}
@@ -77,33 +61,30 @@ public class QueuedInstantiator<Superclass> {
 	}
 	
 	public Superclass instantiate() {
-		return instantiate("No classes found.");
+		return instantiate(Null.<String>get());
 	}
 	
 	public Superclass instantiate(String noClassFoundMessage) {
 		Superclass attempt = null;
 		while (attempt == null && !queue.isEmpty()){
-			ConstructorDelegate<Superclass> delegate = queue.removeLast();
+			Pair<ConstructorDelegate<Superclass>, String[]> info = queue.remove();
 			try {
-				for (String cName : delegate.classNames) {
+				for (String cName : info.getSecond()) {
 					Class.forName(cName, false, classLoader);
 				}
-				attempt = delegate.construct();
-				log(delegate.successMessage);
-			} catch (ClassNotFoundException e) {
-				log(delegate.failureMessage);
-			}
+				attempt = info.getFirst().construct();
+			} catch (ClassNotFoundException e) {}
 			
 		}
 		if (attempt == null) {
-			if (noClassFoundMessage == null) log(noClassFoundMessage);
+			log(noClassFoundMessage);
 		}
 		
 		return attempt;
 	}
 	
 	private void log(String message) {
-		if (messageStream != null) {
+		if (message != null) {
 			messageStream.println(message);
 		}
 	}
