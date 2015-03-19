@@ -37,16 +37,8 @@ public class QueuedInstantiator<Superclass> implements Instantiator<Superclass> 
 	}
 	
 	public QueuedInstantiator<Superclass> tryClass(
-					String conditionClassName, 
-					ConstructorDelegate<Superclass> delegate) {
-		
-		return tryClass(new String[]{conditionClassName}, 
-				 delegate);
-	}
-	
-	public QueuedInstantiator<Superclass> tryClass(
-			String[] conditionClassNames,
-			ConstructorDelegate<Superclass> delegate) {
+					ConstructorDelegate<Superclass> delegate, 
+					String... conditionClassNames) {
 		
 		queue.add(Pair.pair(delegate,conditionClassNames));
 		return this;

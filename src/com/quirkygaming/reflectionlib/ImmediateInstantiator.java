@@ -37,33 +37,16 @@ public class ImmediateInstantiator<Superclass> implements Instantiator<Superclas
 	}
 	
 	public ImmediateInstantiator<Superclass> tryClass(
-			String conditionClassName, 
-			ConstructorDelegate<Superclass> delegate) {
-		
-		return tryClass(conditionClassName, null, null, delegate);
+			ConstructorDelegate<Superclass> delegate,
+			String... conditionClassNames) {
+		return tryClass(null, null, delegate, conditionClassNames);
 	}
 	
 	public ImmediateInstantiator<Superclass> tryClass(
-					String conditionClassName, 
-					String successMessage, 
-					String failureMessage, 
-					ConstructorDelegate<Superclass> delegate) {
-		
-		return tryClass(new String[]{conditionClassName}, 
-				successMessage, failureMessage, delegate);
-	}
-	
-	public ImmediateInstantiator<Superclass> tryClass(
-			String[] conditionClassNames,
-			ConstructorDelegate<Superclass> delegate) {
-		return tryClass(conditionClassNames, null, null, delegate);
-	}
-	
-	public ImmediateInstantiator<Superclass> tryClass(
-			String[] conditionClassNames, 
 			String successMessage, 
 			String failureMessage, 
-			ConstructorDelegate<Superclass> delegate) {
+			ConstructorDelegate<Superclass> delegate,
+			String... conditionClassNames) {
 		
 		if (instance != null) return this; // Already instantiated 
 		try {
