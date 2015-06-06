@@ -86,7 +86,7 @@ class ReflUtil {
 				m = clazz.getMethod(methodName, classes);
 			} catch (NoSuchMethodException e) {
 				nextMethod: for (Method match : clazz.getDeclaredMethods()) {
-					if (match.getName().equals(methodName) && match.getParameterCount() == classes.length) {
+					if (match.getName().equals(methodName) && match.getParameterTypes().length == classes.length) {
 						for (int i = 0; i < classes.length; i++) {
 							Class<?>[] params = match.getParameterTypes();
 							if (! (classes[i] == null || params[i].isAssignableFrom(classes[i])) ) {
